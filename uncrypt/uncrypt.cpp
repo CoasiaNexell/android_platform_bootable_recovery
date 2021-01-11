@@ -548,11 +548,23 @@ static bool setup_bcb(const int socket) {
 
     // c8. setup the bcb command
     std::string err;
+#ifndef NOT_USE_BOOTLOADER_MSG
     if (!write_bootloader_message(options, &err)) {
         ALOGE("failed to set bootloader message: %s", err.c_str());
         write_status_to_socket(-1, socket);
         return false;
     }
+#else
+#define RECOVERY_COMMAND_FILE "/cache/recovery/command"
+
+	int fd = open(RECOVERY_COMMAND_FILE, O_WRONLY | O_CREAT | O_SYNC, S_IRUSR | S_IWUSR);
+	if (fd < 0) {
+		ALOGE("failed to open %s\n", RECOVERY_COMMAND_FILE);
+		return NULL;
+	}
+	write(fd, content.c_str(), content.size());
+	close(fd);
+#endif
     if (!wipe_package.empty() && !write_wipe_package(wipe_package, &err)) {
         ALOGE("failed to set wipe package: %s", err.c_str());
         write_status_to_socket(-1, socket);

@@ -29,4 +29,8 @@ LOCAL_STATIC_LIBRARIES := libbootloader_message libbase \
 
 LOCAL_INIT_RC := uncrypt.rc
 
+ifeq ($(TARGET_BOARD_PLATFORM),s5p6818)
+LOCAL_CFLAGS += -DNOT_USE_BOOTLOADER_MSG
+endif
+
 include $(BUILD_EXECUTABLE)

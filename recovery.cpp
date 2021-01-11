@@ -310,6 +310,7 @@ static void redirect_stdio(const char* filename) {
 //   - the contents of COMMAND_FILE (one per line)
 static void
 get_args(int *argc, char ***argv) {
+#ifndef NOT_USE_BOOTLOADER_MSG
     bootloader_message boot = {};
     std::string err;
     if (!read_bootloader_message(&boot, &err)) {
@@ -343,6 +344,7 @@ get_args(int *argc, char ***argv) {
             LOGE("Bad boot message\n\"%.20s\"\n", boot.recovery);
         }
     }
+#endif
 
     // --- if that doesn't work, try the command file (if we have /cache).
     if (*argc <= 1 && has_cache) {
@@ -368,7 +370,7 @@ get_args(int *argc, char ***argv) {
             LOGI("Got arguments from %s\n", COMMAND_FILE);
         }
     }
-
+#ifndef NOT_USE_BOOTLOADER_MSG
     // --> write the arguments we have back into the bootloader control block
     // always boot into recovery after this (until finish_recovery() is called)
     strlcpy(boot.command, "boot-recovery", sizeof(boot.command));
@@ -381,6 +383,7 @@ get_args(int *argc, char ***argv) {
     if (!write_bootloader_message(boot, &err)) {
         LOGE("%s\n", err.c_str());
     }
+#endif
 }
 
 static void
